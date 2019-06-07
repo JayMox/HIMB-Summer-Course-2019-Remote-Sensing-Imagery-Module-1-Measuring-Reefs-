@@ -5,9 +5,11 @@ date: "6/6/2019"
 output: html_document
 ---
 
-```{r echo = F quiet = T}
+```{r echo = F, quiet = T}
 knitr::opts_chunk$set(warning = FALSE, message = FALSE)
 library(tidyverse)
+library(lubridate)
+library(plotly)
 
 #data stitch
 files = list.files(path = 'data', pattern = "*.csv", 
@@ -16,18 +18,47 @@ dat <- sapply(files, read_csv, skip=0, simplify=F) %>%
   set_names(files) %>% 
   bind_rows(.id = "fname")
 #transform
-dat <- 
-
+data <- dat %>% 
+  mutate(dt = lubridate::ymd(date)) %>% 
+  #remove na's from shawna's group
+  filter(!is.na(method))
+#write_csv(data, "reefMeasurements_ALL.csv")
+#daturrrrr furrrrr shawna
 ```
 
 ## Study design
 
 This research focuses on the measurement of reef area from remote sensing products across multiple spatial resolutions.  
 
-Imagery was collected for patch reefs throughout Kaneohe bay between years YYYY - YYYY from platforms THESE PLATFORMS (e.g., Planet scope, pleiades, ).  In May-June 2019, three field crews collected in situ measurements of these reefs to compare the accuracy of direct field estimates of reef area and perimeter to estimates derived from remote sensing.  
+Satellite imagery was collected for patch reefs throughout Kaneohe bay between years `r min(year(data$dt), na.rm = T)` - `r max(year(data$dt), na.rm = T)` from multiple platforms & providers (e.g., WorldView 1/2, GeoEye-1, Quickbird, Ikonos, PLanetScope, Rapid Eye, Sentinel-2, and finally.... yes.. Landsat 8).  
 
+In May-June 2019, three field crews collected in situ measurements of these reefs to compare the accuracy of direct field estimates of reef area and perimeter to estimates derived from remote sensing.  
+
+This analysis compares measurement variability across data types (i.e., in situ & remote sensing). 
+
+##Analysis
 ```{r echo = F}
+#look at the data
+df <- data %>% 
+  select(area_m2, perimeter_m, 
+         reef_no, replicate, res = imagery_resolution_m, 
+         method, platform, imagery_type, provider, observer, 
+         dt) %>% 
+  gather(var, val, -reef_no, -replicate, -res, -method, -platform, 
+         -imagery_type, -provider, -observer, -dt)
 
+
+p <- df %>% 
+  ggplot() + 
+  geom_histogram(aes(x = val, fill = observer)) + 
+  facet_grid(reef_no~var, scales = "free") +
+  theme_bw()
+ggplotly(p)
+
+#outliers exist, remove beyond 2SD
+df <- df %>%
+  group_by(reef_no, var) %>%
+  filter(!(abs(val - median(val)) > 2*sd(val))) 
 ```
 
 ## Including Plots
