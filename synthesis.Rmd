@@ -1,0 +1,41 @@
+---
+title: "Remote sensing & reef measurement"
+author: "Jerry Moxley"
+date: "6/6/2019"
+output: html_document
+---
+
+```{r echo = F quiet = T}
+knitr::opts_chunk$set(warning = FALSE, message = FALSE)
+library(tidyverse)
+
+#data stitch
+files = list.files(path = 'data', pattern = "*.csv", 
+                    recursive = T, full.names = T)
+dat <- sapply(files, read_csv, skip=0, simplify=F) %>% 
+  set_names(files) %>% 
+  bind_rows(.id = "fname")
+#transform
+dat <- 
+
+```
+
+## Study design
+
+This research focuses on the measurement of reef area from remote sensing products across multiple spatial resolutions.  
+
+Imagery was collected for patch reefs throughout Kaneohe bay between years YYYY - YYYY from platforms THESE PLATFORMS (e.g., Planet scope, pleiades, ).  In May-June 2019, three field crews collected in situ measurements of these reefs to compare the accuracy of direct field estimates of reef area and perimeter to estimates derived from remote sensing.  
+
+```{r echo = F}
+
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
